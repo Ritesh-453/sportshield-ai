@@ -1,7 +1,7 @@
 # 🛡️ SportShield AI
 ### Digital Asset Protection for Sports Media
 
-> Built for Google Solution Challenge 2026 | Problem Statement: Digital Asset Protection
+> Built for Google Solution Challenge 2026 | Problem Statement PS1: Digital Asset Protection
 
 ![Python](https://img.shields.io/badge/Python-3.14-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.0-green)
@@ -41,6 +41,22 @@ Suspect Image → Hash Comparison + Gemini AI → Similarity Score → Alert
 
 ---
 
+## 📱 Screenshots
+
+### Dashboard
+![Dashboard](static/screenshots/dashboard.png)
+
+### Scan & Detect
+![Scan](static/screenshots/scan.png)
+
+### Violations Log
+![Violations](static/screenshots/violations.png)
+
+### SDG Alignment
+![SDG](static/screenshots/sdg.png)
+
+---
+
 ## ✨ Key Features
 
 | Feature | Description |
@@ -58,14 +74,14 @@ Suspect Image → Hash Comparison + Gemini AI → Similarity Score → Alert
 ## 🛠️ Tech Stack
 
 ### Google Technologies
-- **Google Gemini AI** (`gemini-2.0-flash`) — Image analysis and comparison
+- **Google Gemini AI** — Image analysis and AI-powered comparison
 - **Firebase Firestore** — Cloud database for assets and violations
-- **Google Cloud** — Project infrastructure
+- **Google Cloud** — Project infrastructure and hosting
 
 ### Core Technologies
 - **Python 3.14** + **Flask** — Backend framework
 - **imagehash** — Perceptual hashing (pHash, dHash, aHash)
-- **SQLite** — Local database (dual-write with Firebase)
+- **SQLite** — Local database with dual-write to Firebase
 - **ReportLab** — PDF report generation
 - **Matplotlib** — Analytics charts
 - **exifread** — Image metadata extraction
@@ -83,19 +99,17 @@ Suspect Image → Hash Comparison + Gemini AI → Similarity Score → Alert
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/sportshield-ai.git
+git clone https://github.com/Ritesh-453/sportshield-ai.git
 cd sportshield-ai
 
 # Install dependencies
 pip install flask pillow imagehash requests python-dotenv exifread
 pip install google-generativeai firebase-admin reportlab matplotlib
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys
 ```
 
 ### Environment Variables
+
+Create a `.env` file in the root folder:
 ```env
 SECRET_KEY=your_secret_key
 DATABASE=database/sportshield.db
@@ -113,8 +127,6 @@ Open `http://127.0.0.1:5000` in your browser.
 
 ---
 
-
-
 ## 🌍 UN SDG Alignment
 
 | SDG | Goal | How SportShield Helps |
@@ -122,19 +134,6 @@ Open `http://127.0.0.1:5000` in your browser.
 | **SDG 16** | Peace, Justice & Strong Institutions | Provides legal-grade IP violation evidence |
 | **SDG 9** | Industry, Innovation & Infrastructure | AI-powered scalable detection infrastructure |
 | **SDG 8** | Decent Work & Economic Growth | Protects revenue streams of content creators |
-
----
-
-## 👥 Team
-
-Built by a 4-member IT Engineering team for Google Solution Challenge 2026.
-
-| Role | Responsibility |
-|------|---------------|
-| Team Lead | Backend + AI integration |
-| Frontend Dev | UI/UX + Dashboard |
-| Cloud Engineer | Firebase + deployment |
-| Research | SDG alignment + documentation |
 
 ---
 
@@ -160,8 +159,22 @@ sportshield-ai/
 │   ├── scan.html         # Scan page
 │   ├── violations.html   # Violations log
 │   └── sdg.html          # SDG alignment
-└── uploads/              # Stored images
+└── static/
+    └── screenshots/      # App screenshots
 ```
+
+---
+
+## 👥 Team
+
+Built by a 4-member IT Engineering team for Google Solution Challenge 2026.
+
+| Role | Responsibility |
+|------|---------------|
+| Team Lead | Backend + AI integration |
+| Frontend Dev | UI/UX + Dashboard |
+| Cloud Engineer | Firebase + deployment |
+| Research | SDG alignment + documentation |
 
 ---
 
@@ -171,4 +184,4 @@ MIT License — Built for Google Solution Challenge 2026
 
 ---
 
-*SportShield AI — Protecting the integrity of digital sports media*
+*SportShield AI — Protecting the integrity of digital sports media* 🛡️
