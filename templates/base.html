@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportShield AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; }
+
+        nav {
+            background: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-weight: 700; font-size: 1.2rem; color: #4f46e5; display: flex; align-items: center; gap: 8px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links a {
+            text-decoration: none; color: #475569;
+            padding: 8px 16px; border-radius: 8px;
+            font-size: 0.9rem; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { background: #f1f5f9; color: #4f46e5; }
+        .nav-links a.active { background: #eef2ff; color: #4f46e5; }
+
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+
+        .flash-messages { max-width: 1100px; margin: 20px auto 0; padding: 0 20px; }
+        .flash {
+            padding: 12px 20px; border-radius: 8px; margin-bottom: 10px;
+            background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
+            font-size: 0.9rem; font-weight: 500;
+        }
+
+        .card {
+            background: white; border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            padding: 28px; margin-bottom: 24px;
+        }
+        .card-title {
+            font-size: 1.1rem; font-weight: 700;
+            margin-bottom: 20px; color: #0f172a;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 20px; border-radius: 8px; border: none;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: #4f46e5; color: white; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-danger { background: #e11d48; color: white; }
+
+        .badge {
+            padding: 4px 10px; border-radius: 999px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .badge-alert { background: #fff1f2; color: #e11d48; }
+        .badge-safe { background: #f0fdf4; color: #10b981; }
+        .badge-info { background: #eef2ff; color: #4f46e5; }
+    </style>
+</head>
+<body>
+<nav>
+    <div class="logo"><i class="fas fa-shield-virus"></i> SportShield AI</div>
+    <div class="nav-links">
+        <a href="/" class="{{ 'active' if request.endpoint == 'index' }}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="/assets" class="{{ 'active' if request.endpoint == 'assets.list_assets' }}">
+            <i class="fas fa-database"></i> Registry
+        </a>
+        <a href="/scan" class="{{ 'active' if request.endpoint == 'scan.scan' }}">
+            <i class="fas fa-magnifying-glass"></i> Scan
+        </a>
+        <a href="/violations" class="{{ 'active' if request.endpoint == 'scan.violations' }}">
+            <i class="fas fa-triangle-exclamation"></i> Violations
+        </a>
+        <a href="/sdg" class="{{ 'active' if request.endpoint == 'sdg' }}">
+            <i class="fas fa-earth-asia"></i> SDG Goals
+        </a>
+    </div>
+</nav>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="flash-messages">
+    {% for msg in messages %}
+    <div class="flash"><i class="fas fa-check-circle"></i> {{ msg }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+</body>
+</html>

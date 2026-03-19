@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+    <div class="card-title"><i class="fas fa-database" style="color:#4f46e5"></i> Registered Assets</div>
+    {% if assets %}
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f8fafc;">
+                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#475569; text-transform:uppercase; border-bottom:1px solid #e2e8f0;">Asset</th>
+                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#475569; text-transform:uppercase; border-bottom:1px solid #e2e8f0;">Name</th>
+                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#475569; text-transform:uppercase; border-bottom:1px solid #e2e8f0;">Fingerprint</th>
+                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#475569; text-transform:uppercase; border-bottom:1px solid #e2e8f0;">Registered</th>
+                <th style="padding:12px 16px; text-align:left; font-size:0.8rem; color:#475569; text-transform:uppercase; border-bottom:1px solid #e2e8f0;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asset in assets %}
+            <tr style="border-bottom:1px solid #f1f5f9;">
+                <td style="padding:14px 16px;">
+                    <img src="/uploads/{{ asset['filename'] }}"
+                        style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0;">
+                </td>
+                <td style="padding:14px 16px; font-weight:600;">{{ asset['name'] }}</td>
+                <td style="padding:14px 16px;">
+                    <code style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:0.8rem; color:#4f46e5;">
+                        {{ asset['phash'][:16] }}...
+                    </code>
+                </td>
+                <td style="padding:14px 16px; color:#475569; font-size:0.85rem;">{{ asset['uploaded_at'] }}</td>
+                <td style="padding:14px 16px;">
+                    <form method="POST" action="/assets/delete/{{ asset['id'] }}">
+                        <button type="submit" class="btn btn-danger" style="padding:6px 12px; font-size:0.8rem;"
+                            onclick="return confirm('Delete this asset?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center; padding:40px; color:#94a3b8;">
+        <i class="fas fa-database" style="font-size:2rem; margin-bottom:12px; display:block;"></i>
+        No assets registered yet. Go to Home to register your first asset.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+.env
+firebase-key.json
+uploads/
+__pycache__/
+*.pyc
+database/sportshield.db
+.venv/
