@@ -104,7 +104,8 @@ def scan():
 
             # For high matches — get AI comparison too
             ai_verdict = None
-            # Auto-save violations above 70%
+
+                    # Auto-save violations above 70%
             if similarity > 70:
                 db.execute(
                     'INSERT INTO violations (asset_id, similarity) VALUES (?, ?)',
@@ -112,7 +113,7 @@ def scan():
                 )
                 db.commit()
 
-                # Also save to Firebase
+                # Save to Firebase
                 from database.firebase_db import save_violation_firebase
                 save_violation_firebase(
                     asset['id'],
@@ -121,6 +122,20 @@ def scan():
                     asset['filename']
                 )
 
+                # Send email alert
+                from routes.alerts import send_violation_alert
+                send_violation_alert(asset['name'], similarity)
+
+            results.append({
+                'asset_name': asset['name'],
+                'filename': asset['filename'],
+                'similarity': similarity,
+                'status': 'ALERT' if similarity > 70 else 'SAFE',
+                'risk_label': risk_label,
+                'risk_color': risk_color,
+                'ai_verdict': ai_verdict
+            })
+            
             results.append({
                 'asset_name': asset['name'],
                 'filename': asset['filename'],

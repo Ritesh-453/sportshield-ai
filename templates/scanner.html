@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card" style="border-top: 4px solid #4f46e5;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div class="card-title">
+                <i class="fas fa-radar" style="color:#4f46e5"></i> Web Scanner
+            </div>
+            <p style="color:#475569; font-size:0.9rem; margin-top:-12px;">
+                Automatically searches the internet for unauthorized use of your assets
+            </p>
+        </div>
+        <button onclick="runScan()" id="scan-btn" class="btn btn-primary">
+            <i class="fas fa-play"></i> Run Scan Now
+        </button>
+    </div>
+
+    <!-- Scan status -->
+    <div id="scan-status" style="display:none; margin-top:16px; padding:16px;
+         background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-spinner fa-spin" style="color:#10b981;"></i>
+            <span id="status-text" style="font-weight:600; color:#166534;">
+                Scanning the web for violations...
+            </span>
+        </div>
+    </div>
+
+    <!-- Result -->
+    <div id="scan-result" style="display:none; margin-top:16px;"></div>
+</div>
+
+<!-- Assets being monitored -->
+<div class="card">
+    <div class="card-title">
+        <i class="fas fa-eye" style="color:#4f46e5"></i> Assets Being Monitored
+    </div>
+    {% if assets %}
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;">
+        {% for asset in assets %}
+        <div style="background:#f8fafc; padding:16px; border-radius:10px;
+                    border:1px solid #e2e8f0; display:flex; align-items:center; gap:12px;">
+            <img src="/uploads/{{ asset['filename'] }}"
+                style="width:48px; height:48px; object-fit:cover; border-radius:8px;">
+            <div>
+                <div style="font-weight:700; font-size:0.9rem;">{{ asset['name'] }}</div>
+                <div style="font-size:0.75rem; color:#10b981; margin-top:2px;">
+                    <i class="fas fa-circle" style="font-size:0.5rem;"></i> Monitoring active
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:30px; color:#94a3b8;">
+        No assets registered yet. Register assets to start monitoring.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Web violations found -->
+{% if violations %}
+<div class="card">
+    <div class="card-title">
+        <i class="fas fa-globe" style="color:#e11d48"></i> Violations Found Online
+    </div>
+    {% for v in violations %}
+    <div style="padding:16px; border-radius:10px; margin-bottom:12px;
+                background:#fff1f2; border:1px solid #fecdd3;">
+        <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div>
+                <div style="font-weight:700; margin-bottom:4px;">{{ v['asset_name'] }}</div>
+                {% if v['found_url'] %}
+                <div style="font-size:0.82rem; color:#475569; margin-bottom:6px;">
+                    <i class="fas fa-link"></i>
+                    <a href="{{ v['found_url'] }}" target="_blank"
+                       style="color:#4f46e5; text-decoration:none;">
+                        {{ v['found_url'][:60] }}...
+                    </a>
+                </div>
+                {% endif %}
+                <div style="font-size:0.82rem; color:#475569;">
+                    Detected: {{ v['detected_at'] }}
+                </div>
+            </div>
+            <span class="badge badge-alert">{{ v['similarity'] }}% match</span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+async function runScan() {
+    const btn = document.getElementById('scan-btn');
+    const status = document.getElementById('scan-status');
+    const result = document.getElementById('scan-result');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+    status.style.display = 'block';
+    result.style.display = 'none';
+
+    try {
+        const response = await fetch('/scanner/run', { method: 'POST' });
+        const data = await response.json();
+
+        status.style.display = 'none';
+        result.style.display = 'block';
+
+        if (data.status === 'success') {
+            result.innerHTML = `
+                <div style="padding:16px; background:#f0fdf4; border-radius:8px;
+                     border:1px solid #bbf7d0; color:#166534; font-weight:600;">
+                    <i class="fas fa-check-circle"></i> ${data.message}
+                    ${data.violations_found > 0 ?
+                        '<br><a href="/violations" style="color:#4f46e5;">View violations →</a>' : ''}
+                </div>`;
+        } else {
+            result.innerHTML = `
+                <div style="padding:16px; background:#fff1f2; border-radius:8px;
+                     border:1px solid #fecdd3; color:#e11d48; font-weight:600;">
+                    <i class="fas fa-circle-exclamation"></i> ${data.message}
+                </div>`;
+        }
+    } catch(e) {
+        status.style.display = 'none';
+        result.style.display = 'block';
+        result.innerHTML = `<div style="padding:16px; background:#fff1f2;
+            border-radius:8px; border:1px solid #fecdd3; color:#e11d48;">
+            Error running scan. Please try again.</div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-play"></i> Run Scan Now';
+}
+</script>
+{% endblock %}
