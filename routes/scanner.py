@@ -157,7 +157,7 @@ def run_scheduled_scan(app):
             except Exception as e:
                 print(f"Scheduled scan error: {e}")
 
-            time.sleep(7200)
+            time.sleep(86400)
 
 @scanner_bp.route('/scanner')
 def scanner_dashboard():
