@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card" style="border-top: 4px solid #4f46e5;">
+    <div class="card-title">
+        <i class="fas fa-film" style="color:#4f46e5"></i> Video Scanner
+        <span class="badge badge-info" style="margin-left:8px;">NEW</span>
+    </div>
+    <p style="color:#475569; font-size:0.9rem; margin-top:-12px; margin-bottom:20px;">
+        Upload any suspect video — our AI scans every frame for unauthorized sports media
+    </p>
+    <form method="POST" enctype="multipart/form-data">
+        <div style="margin-bottom:16px;">
+            <label style="font-size:0.85rem; font-weight:600; color:#475569;
+                          display:block; margin-bottom:6px;">Upload Suspect Video</label>
+            <input type="file" name="video" accept="video/*" required
+                style="width:100%; padding:10px; border:2px dashed #e2e8f0;
+                       border-radius:8px; font-size:0.85rem;">
+            <p style="font-size:0.78rem; color:#94a3b8; margin-top:6px;">
+                Supported: MP4, AVI, MOV, MKV — Max 100MB
+            </p>
+        </div>
+        <div style="margin-bottom:20px;">
+            <label style="font-size:0.85rem; font-weight:600; color:#475569;
+                          display:block; margin-bottom:6px;">Scan interval (seconds)</label>
+            <select name="interval" style="padding:10px; border:1px solid #e2e8f0;
+                    border-radius:8px; font-size:0.9rem; width:200px;">
+                <option value="1">Every 1 second (thorough)</option>
+                <option value="2" selected>Every 2 seconds (recommended)</option>
+                <option value="5">Every 5 seconds (fast)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">
+            <i class="fas fa-magnifying-glass"></i> Scan Video Now
+        </button>
+    </form>
+</div>
+
+{% if scanning %}
+<div class="card" style="text-align:center; padding:40px;">
+    <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:#4f46e5; margin-bottom:16px; display:block;"></i>
+    <div style="font-weight:700; font-size:1.1rem;">Scanning video frames...</div>
+    <div style="color:#475569; margin-top:8px;">This may take a few minutes depending on video length</div>
+</div>
+{% endif %}
+
+{% if video_info %}
+<div class="card">
+    <div class="card-title"><i class="fas fa-info-circle" style="color:#4f46e5"></i> Video Analysis</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+        <div style="background:#f8fafc; padding:16px; border-radius:8px; text-align:center;">
+            <div style="font-size:1.5rem; font-weight:800; color:#4f46e5;">
+                {{ video_info.frames_scanned }}
+            </div>
+            <div style="font-size:0.85rem; color:#475569;">Frames Scanned</div>
+        </div>
+        <div style="background:#f8fafc; padding:16px; border-radius:8px; text-align:center;">
+            <div style="font-size:1.5rem; font-weight:800; color:#e11d48;">
+                {{ violations|length }}
+            </div>
+            <div style="font-size:0.85rem; color:#475569;">Violations Found</div>
+        </div>
+        <div style="background:#f8fafc; padding:16px; border-radius:8px; text-align:center;">
+            <div style="font-size:1.5rem; font-weight:800; color:#10b981;">
+                {{ video_info.duration }}s
+            </div>
+            <div style="font-size:0.85rem; color:#475569;">Video Duration</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if violations %}
+<div class="card">
+    <div class="card-title">
+        <i class="fas fa-triangle-exclamation" style="color:#e11d48"></i>
+        Violations Found in Video
+    </div>
+    {% for v in violations %}
+    <div style="display:flex; align-items:center; gap:16px; padding:16px;
+                border-radius:10px; margin-bottom:12px;
+                background:#fff1f2; border:1px solid #fecdd3;">
+        <img src="/uploads/video_frames/{{ v.frame_filename }}"
+            style="width:120px; height:68px; object-fit:cover;
+                   border-radius:8px; border:2px solid #fecdd3;">
+        <div style="flex:1;">
+            <div style="font-weight:700; margin-bottom:4px;">{{ v.asset_name }}</div>
+            <div style="font-size:0.85rem; color:#475569;">
+                <i class="fas fa-clock"></i> Found at timestamp:
+                <strong style="color:#e11d48;">{{ v.time_str }}</strong>
+            </div>
+            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">
+                Similarity: <strong>{{ v.similarity }}%</strong>
+            </div>
+        </div>
+        <span class="badge badge-alert" style="font-size:0.9rem; padding:8px 16px;">
+            VIOLATION
+        </span>
+    </div>
+    {% endfor %}
+</div>
+
+{% elif video_info %}
+<div class="card" style="text-align:center; padding:40px; color:#10b981;">
+    <i class="fas fa-shield-check" style="font-size:2rem; margin-bottom:12px; display:block;"></i>
+    <div style="font-weight:700; font-size:1.1rem;">No violations detected!</div>
+    <div style="color:#475569; margin-top:8px;">This video appears to be clean.</div>
+</div>
+{% endif %}
+
+{% endblock %}

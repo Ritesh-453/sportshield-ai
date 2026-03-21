@@ -1,6 +1,8 @@
-from flask import Flask, render_template, send_from_directory
+from routes.video_scanner import scan_video
+from flask import Flask, render_template, send_from_directory, request
 from dotenv import load_dotenv
 import os
+import uuid
 import threading
 
 load_dotenv()
@@ -46,6 +48,80 @@ def sdg():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/uploads/video_frames/<filename>')
+def video_frame(filename):
+    return send_from_directory(
+        os.path.join(app.config['UPLOAD_FOLDER'], 'video_frames'),
+        filename
+    )
+
+@app.route('/video', methods=['GET', 'POST'])
+def video_scan():
+    violations = []
+    video_info = None
+
+    if request.method == 'POST':
+        if 'video' not in request.files:
+            return render_template('video_scan.html',
+                                   violations=[], video_info=None)
+
+        file = request.files['video']
+        interval = int(request.form.get('interval', 2))
+
+        if file.filename == '':
+            return render_template('video_scan.html',
+                                   violations=[], video_info=None)
+
+        # Save video
+        video_filename = f"video_{uuid.uuid4().hex}_{file.filename}"
+        video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
+        file.save(video_path)
+
+        # Get assets
+        from database.db import get_db
+        db = get_db(app.config['DATABASE'])
+        assets = db.execute('SELECT * FROM assets').fetchall()
+        db.close()
+
+        # Extract keyframes and scan
+        from routes.video_scanner import extract_keyframes
+        keyframes = extract_keyframes(video_path, interval)
+
+        video_info = {
+            'frames_scanned': len(keyframes),
+            'duration': round(len(keyframes) * interval, 1)
+        }
+
+        # Scan frames
+        violations = scan_video(
+            video_path,
+            assets,
+            app.config['DATABASE'],
+            app.config['UPLOAD_FOLDER']
+        )
+
+        # Save violations to database
+        if violations:
+            db = get_db(app.config['DATABASE'])
+            for v in violations:
+                db.execute(
+                    'INSERT INTO violations (asset_id, similarity) VALUES (?, ?)',
+                    (v['asset_id'], v['similarity'])
+                )
+                # Send email alert
+                from routes.alerts import send_violation_alert
+                send_violation_alert(v['asset_name'], v['similarity'])
+            db.commit()
+            db.close()
+
+        # Clean up video file
+        if os.path.exists(video_path):
+            os.remove(video_path)
+
+    return render_template('video_scan.html',
+                           violations=violations,
+                           video_info=video_info)
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False)
