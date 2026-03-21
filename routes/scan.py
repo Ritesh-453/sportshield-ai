@@ -1,3 +1,4 @@
+from routes.opencv_detector import combined_opencv_score, get_keypoint_count
 from flask import Blueprint, render_template, request, current_app
 from database.db import get_db
 from PIL import Image
@@ -59,6 +60,19 @@ def get_risk_label(similarity):
         return 'MEDIUM', '#f59e0b'
     else:
         return 'LOW', '#10b981'
+    
+def combined_similarity(hash_score, opencv_score):
+    """
+    Intelligently combine hash and OpenCV scores
+    Hash is fast, OpenCV is accurate — use both
+    """
+    if opencv_score > 0:
+        # If OpenCV found matches, weight it heavily
+        final = (hash_score * 0.3) + (opencv_score * 0.7)
+    else:
+        # Fall back to hash only
+        final = hash_score
+    return round(final, 2)
 
 @scan_bp.route('/scan', methods=['GET', 'POST'])
 def scan():
@@ -94,12 +108,25 @@ def scan():
         assets = db.execute('SELECT * FROM assets').fetchall()
 
         for asset in assets:
-            similarity = compare_hashes(
+            # Hash similarity
+            hash_score = compare_hashes(
                 scan_hashes,
                 asset['phash'],
                 asset['dhash'],
                 asset['ahash']
             )
+
+            # OpenCV SIFT + ORB similarity
+            asset_path = os.path.join(
+                current_app.config['UPLOAD_FOLDER'],
+                asset['filename']
+            )
+            opencv_score = 0
+            if os.path.exists(asset_path):
+                opencv_score = combined_opencv_score(asset_path, filepath)
+
+            # Combined final score
+            similarity = combined_similarity(hash_score, opencv_score)
             risk_label, risk_color = get_risk_label(similarity)
 
             # For high matches — get AI comparison too
@@ -130,6 +157,8 @@ def scan():
                 'asset_name': asset['name'],
                 'filename': asset['filename'],
                 'similarity': similarity,
+                'hash_score': hash_score,
+                'opencv_score': opencv_score,
                 'status': 'ALERT' if similarity > 70 else 'SAFE',
                 'risk_label': risk_label,
                 'risk_color': risk_color,

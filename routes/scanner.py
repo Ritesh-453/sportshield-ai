@@ -1,3 +1,4 @@
+from routes.opencv_detector import combined_opencv_score
 from flask import Blueprint, render_template, request, current_app, jsonify
 from database.db import get_db
 from database.firebase_db import save_violation_firebase
@@ -80,13 +81,34 @@ def search_and_scan(asset, db_path, upload_folder):
 
                     scan_hashes = get_all_hashes(temp_path)
                     if scan_hashes:
-                        similarity = compare_hashes(
+                        # Hash score
+                        hash_score = compare_hashes(
                             scan_hashes,
                             asset['phash'],
                             asset['dhash'],
                             asset['ahash']
                         )
-                        print(f"Similarity with {asset['name']}: {similarity}%")
+
+                        # OpenCV SIFT+ORB score
+                        asset_path = os.path.join(
+                            upload_folder,
+                            asset['filename']
+                        )
+                        opencv_score = 0
+                        if os.path.exists(asset_path):
+                            opencv_score = combined_opencv_score(
+                                asset_path, temp_path
+                            )
+
+                        # Combined score
+                        if opencv_score > 0:
+                            similarity = round(
+                                (hash_score * 0.3) + (opencv_score * 0.7), 2
+                            )
+                        else:
+                            similarity = hash_score
+
+                        print(f"Hash: {hash_score}% | OpenCV: {opencv_score}% | Final: {similarity}% — {asset['name']}")
 
                         if similarity > 60:
                             violations.append({
