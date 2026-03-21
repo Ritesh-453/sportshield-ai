@@ -77,5 +77,28 @@
     },
     "previous_hash": "cc6c24678f9dfcc9ae24d2013102acfdb43d4e5215022d1c792b80be73838a78",
     "hash": "c321b2f12ca791a45d547e2531a425eaab71a49986450bfa678891843e95ef7e"
+  },
+  {
+    "index": 4,
+    "timestamp": "2026-03-21T17:12:23.899843",
+    "type": "VIOLATION",
+    "data": {
+      "asset_name": "Olympic Rings ",
+      "similarity": 99.08,
+      "risk_level": "CRITICAL",
+      "detection_methods": [
+        "pHash",
+        "dHash",
+        "aHash",
+        "SIFT",
+        "ORB",
+        "MobileNet"
+      ],
+      "found_url": null,
+      "scan_type": "IMAGE",
+      "evidence_hash": "499e51c3765adcf5"
+    },
+    "previous_hash": "c321b2f12ca791a45d547e2531a425eaab71a49986450bfa678891843e95ef7e",
+    "hash": "59ce49535167588ff31d4aeb66ef343039f769b99b05f14fe796dd50b03d1523"
   }
 ]
